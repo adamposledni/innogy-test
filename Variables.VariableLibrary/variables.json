@@ -1,0 +1,47 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition/variables/1.0.0/schema.json",
+  "variables": [
+    {
+      "name": "tenant_id",
+      "note": "",
+      "type": "Guid",
+      "value": "0ca292c0-6f35-48bf-86fd-70dfc0795c79"
+    },
+    {
+      "name": "key_vault_url",
+      "note": "",
+      "type": "String",
+      "value": "https://ap-playground-keyvault.vault.azure.net/"
+    },
+    {
+      "name": "semantic_models_management_xlsx_relative_file_path",
+      "note": "",
+      "type": "String",
+      "value": "/Files/Semantic model ownerships/Semantic model - management.xlsx"
+    },
+    {
+      "name": "semantic_models_ownerships_sheet_name",
+      "note": "",
+      "type": "String",
+      "value": "Ownerships"
+    },
+    {
+      "name": "semantic_models_refreshes_sheet_name",
+      "note": "",
+      "type": "String",
+      "value": "Refreshes"
+    },
+    {
+      "name": "semantic_models_refreshes_notification_email",
+      "note": "",
+      "type": "String",
+      "value": "admin@k7pk.onmicrosoft.com"
+    },
+    {
+      "name": "semantic_models_ownerships_notification_email",
+      "note": "",
+      "type": "String",
+      "value": "admin@k7pk.onmicrosoft.com"
+    }
+  ]
+}

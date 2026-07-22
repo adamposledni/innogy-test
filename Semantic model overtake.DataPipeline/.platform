@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "Semantic model overtake"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "708e4f63-b08e-ab3c-4796-2c57c8ddb927"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "Switch personal workspace capacity"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "3a8265ce-0d56-a362-46c4-a2b98ba1e876"
+  }
+}

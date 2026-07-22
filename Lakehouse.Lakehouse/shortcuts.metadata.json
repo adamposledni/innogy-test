@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Semantic model ownerships",
+    "path": "/Files",
+    "target": {
+      "type": "OneDriveSharePoint",
+      "oneDriveSharePoint": {
+        "connectionId": "f01a0463-eb65-4351-8b15-483653ffdc81",
+        "location": "https://k7pk.sharepoint.com",
+        "subpath": "/sites/k7pk/Shared Documents/Semantic model ownerships"
+      }
+    }
+  }
+]

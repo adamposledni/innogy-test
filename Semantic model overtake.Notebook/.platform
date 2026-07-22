@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "Semantic model overtake"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "bface1ed-3a06-9338-40de-1e1576570717"
+  }
+}

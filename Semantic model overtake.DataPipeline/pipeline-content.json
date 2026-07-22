@@ -1,0 +1,81 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "bface1ed-3a06-9338-40de-1e1576570717",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.1:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Semantic model overtake",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "items": {
+            "value": "@if(\n    equals(activity('Semantic model overtake').output.status, 'Failed'),\n    json(concat('[{\"subject\": \"Semantic model overtake failed\", \"body\": \"🔴 Error has occured\"}, \"email\": \"', pipeline().libraryVariables.Variables_semantic_models_ownerships_notification_email,'\"]')),\n    json(activity('Semantic model overtake').output.result.exitValue)\n)",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "Office365Email",
+              "typeProperties": {
+                "body": "<p>@{item()['body']}</p>",
+                "to": {
+                  "value": "@item()['email']",
+                  "type": "Expression"
+                },
+                "subject": {
+                  "value": "@item()['subject']",
+                  "type": "Expression"
+                }
+              },
+              "externalReferences": {
+                "connection": "b3151ea0-7cae-49e7-b44f-c82d8ab1bfcf"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Notify",
+              "description": "@item()['body']",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "For each notification",
+        "dependsOn": [
+          {
+            "activity": "Semantic model overtake",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ]
+      }
+    ],
+    "libraryVariables": {
+      "Variables_semantic_models_ownerships_notification_email": {
+        "type": "String",
+        "variableName": "semantic_models_ownerships_notification_email",
+        "libraryName": "Variables"
+      }
+    },
+    "variables": {
+      "notification_body": {
+        "type": "String"
+      }
+    }
+  }
+}
