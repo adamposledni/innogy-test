@@ -17,16 +17,14 @@
 # blob storage and creates the requested items in **the workspace this notebook runs in**. Already existing
 # items (matched by type + display name) are left untouched. Cross-item references (pipeline -> notebook,
 # notebook -> default lakehouse) are rebound to the newly created items' real IDs.
-#
-# #### One-time prerequisites (customer tenant)
+# # #### One-time prerequisites (customer tenant)
 # 1. Package this repository into a zip (everything except this notebook's own item folder) and upload it
 #    to a blob storage container, then generate a read-only, time-limited **SAS URL** for that blob.
 # 2. Import this notebook manually into the target Fabric workspace.
 # 3. Optional, only if you want these wired automatically instead of by hand afterwards:
 #     - Create a **OneDrive/SharePoint connection** in the Fabric portal (for the Lakehouse's SharePoint shortcut).
 #     - Create an **Office365 Outlook connection** in the Fabric portal (for the pipelines' failure e-mails).
-#
-# #### Usage
+# # #### Usage
 # 1. Fill in the **Parameters** cell below.
 # 2. Run all cells.
 # 3. Check the trace output and the **Manual follow-up steps** printed at the end.
