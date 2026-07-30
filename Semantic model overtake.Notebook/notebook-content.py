@@ -253,17 +253,6 @@ for semantic_model in semantic_models_to_overtake:
 
 # CELL ********************
 
-raise Exception("Test")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "jupyter_python"
-# META }
-
-# CELL ********************
-
 semantic_models_overtake_results_fails = [
     d for d in semantic_models_overtake_results
     if d["status"] == "Failed"
