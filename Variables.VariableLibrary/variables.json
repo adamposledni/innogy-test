@@ -42,6 +42,12 @@
       "note": "",
       "type": "String",
       "value": "admin@k7pk.onmicrosoft.com"
+    },
+    {
+      "name": "personal_workspace_capacity_id",
+      "note": "",
+      "type": "Guid",
+      "value": "37982985-f05e-453e-9ea7-fd8fd1b8a7ee"
     }
   ]
 }

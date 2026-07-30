@@ -10,6 +10,10 @@
 # META   "dependencies": {}
 # META }
 
+# MARKDOWN ********************
+
+# ### Setup
+
 # CELL ********************
 
 from datetime import datetime, timedelta
@@ -47,9 +51,15 @@ obo_fabric_api_client = FabricApiClient()
 # META   "language_group": "jupyter_python"
 # META }
 
+# MARKDOWN ********************
+
+# ### Parameters
+
 # CELL ********************
 
-TARGET_CAPACITY_ID = "37982985-f05e-453e-9ea7-fd8fd1b8a7ee"
+variables = nu.variableLibrary.getLibrary("Variables")
+
+personal_workspace_capacity_id = variables.personal_workspace_capacity_id
 
 # METADATA ********************
 
@@ -58,32 +68,15 @@ TARGET_CAPACITY_ID = "37982985-f05e-453e-9ea7-fd8fd1b8a7ee"
 # META   "language_group": "jupyter_python"
 # META }
 
+# MARKDOWN ********************
+
+# ### Run
+
 # CELL ********************
 
-def get_personal_workspaces(client):
-    # The admin/groups endpoint paginates via $skip, not @odata.nextLink/continuationUri,
-    # so FabricApiClient.get_paginated doesn't apply here - page manually instead.
-    workspaces = []
-    page_size = 5000  # max allowed value for $top
-    skip = 0
-
-    while True:
-        print(f"🔍 Trace | Listing personal workspaces, skip={skip}")
-        uri = (
-            "https://api.powerbi.com/v1.0/myorg/admin/groups"
-            f"?$filter=type eq 'PersonalGroup'&$top={page_size}&$skip={skip}"
-        )
-        response = client.request("GET", uri)
-        page = response["body"].get("value", [])
-        workspaces.extend(page)
-
-        if len(page) < page_size:
-            break
-        skip += page_size
-
-    return workspaces
-
-personal_workspaces = get_personal_workspaces(obo_fabric_api_client)
+personal_workspaces = obo_fabric_api_client.get_paginated(
+    "https://api.powerbi.com/v1.0/myorg/admin/groups?$filter=type eq 'PersonalGroup'&$top=1000"
+)
 print(f"🔍 Trace | Found {len(personal_workspaces)} personal workspaces")
 
 # METADATA ********************
@@ -95,15 +88,13 @@ print(f"🔍 Trace | Found {len(personal_workspaces)} personal workspaces")
 
 # CELL ********************
 
-# capacityId is already included on each workspace from the listing above, so
-# skipping workspaces already on the target capacity requires no extra API call.
 workspace_ids_to_assign = [
     workspace["id"]
     for workspace in personal_workspaces
-    if workspace.get("capacityId") != TARGET_CAPACITY_ID
+    if (workspace.get("capacityId") or "").casefold() != (personal_workspace_capacity_id or "").casefold()
 ]
 
-print(f"🔍 Trace | {len(workspace_ids_to_assign)} of {len(personal_workspaces)} personal workspaces need reassignment")
+print(f"🔍 Trace | {len(workspace_ids_to_assign)} / {len(personal_workspaces)} personal workspaces need reassignment")
 
 # METADATA ********************
 
@@ -119,14 +110,13 @@ def chunked(items, size):
         yield items[i:i + size]
 
 batches = list(chunked(workspace_ids_to_assign, 500))
-print(f"🔍 Trace | Assigning {len(workspace_ids_to_assign)} workspaces to capacity {TARGET_CAPACITY_ID} in {len(batches)} batch(es)")
 
 for batch_number, batch in enumerate(batches, start=1):
     print(f"🔍 Trace | Assigning batch {batch_number}/{len(batches)} ({len(batch)} workspaces)")
     request_body = {
         "capacityMigrationAssignments": [
             {
-                "targetCapacityObjectId": TARGET_CAPACITY_ID,
+                "targetCapacityObjectId": personal_workspace_capacity_id,
                 "workspacesToAssign": batch
             }
         ]
@@ -136,7 +126,6 @@ for batch_number, batch in enumerate(batches, start=1):
         "https://api.powerbi.com/v1.0/myorg/admin/capacities/AssignWorkspaces",
         request_body
     )
-    print(f"🔍 Trace | Assigned batch {batch_number}/{len(batches)}")
 
 # METADATA ********************
 

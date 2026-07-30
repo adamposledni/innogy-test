@@ -9,8 +9,14 @@
 # META   },
 # META   "dependencies": {
 # META     "lakehouse": {
-# META       "default_lakehouse_name": "",
-# META       "default_lakehouse_workspace_id": ""
+# META       "default_lakehouse": "ba07d60c-b568-4186-b230-75203072eec3",
+# META       "default_lakehouse_name": "Lakehouse",
+# META       "default_lakehouse_workspace_id": "18b1a08f-f304-4d84-9085-be0c8e4d692a",
+# META       "known_lakehouses": [
+# META         {
+# META           "id": "ba07d60c-b568-4186-b230-75203072eec3"
+# META         }
+# META       ]
 # META     }
 # META   }
 # META }
@@ -137,7 +143,7 @@ print(f"🔍 Trace | {len(semantic_models_to_monitor)} semantic models to monito
 notification_emails_by_semantic_model = {}
 
 df_notification_emails = pd.read_excel(
-    pd.ExcelFile(f"/lakehouse/default/{semantic_models_management_xlsx_relative_file_path}"),
+    pd.ExcelFile(f"/lakehouse/default{semantic_models_management_xlsx_relative_file_path}"),
     sheet_name = semantic_models_refreshes_sheet_name,
     dtype = str
 )
