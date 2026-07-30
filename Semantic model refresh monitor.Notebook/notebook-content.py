@@ -26,11 +26,11 @@
 # ### Monitor semantic model refreshes
 # This notebook monitors the refresh history of semantic models that were overtaken by service principals (see the *Overtake semantic models* notebook).
 # 
-# Under service principal ownership, the built-in scheduled refresh failure email notifications do not work, so this notebook reads the refresh history through the API instead and produces its own notifications for any failed refresh (scheduled, manual, or via API).
-# 
+# Under service principal ownership, the built-in scheduled refresh failure email notifications do not work, so this notebook reads the refresh history through the API instead and produces its own notifications for any failed or disabled refresh (scheduled, manual, or via API).
+#
 # For each semantic model listed in `semantic_models_to_overtake.json`, it keeps track of the last refresh it has already checked, so every run only looks at refreshes that happened since the previous run.
-# 
-# Notification emails are looked up in an XLSX mapping file (workspace id, semantic model id, notification emails). If a semantic model has no emails configured there, a fallback email from the variable library is used.
+#
+# Notification emails are looked up in an XLSX mapping file (workspace id, semantic model id, notification emails). A semantic model id of `*` configures the emails for every semantic model in that workspace. If a semantic model has no matching emails configured there, a fallback email from the variable library is used.
 # 
 # If checking a semantic model's refresh history itself fails (for example, a permissions issue), that is not sent to the model's delegated recipients - all such check failures are aggregated into a single notification sent to a dedicated monitoring email from the variable library.
 
@@ -139,8 +139,10 @@ print(f"🔍 Trace | {len(semantic_models_to_monitor)} semantic models to monito
 # CELL ********************
 
 # load notification email mapping up front (workspace id, semantic model id -> emails)
+# a semantic model id of "*" configures the emails for every semantic model in that workspace
 
 notification_emails_by_semantic_model = {}
+notification_emails_by_workspace = {}
 
 df_notification_emails = pd.read_excel(
     pd.ExcelFile(f"/lakehouse/default{semantic_models_management_xlsx_relative_file_path}"),
@@ -155,10 +157,14 @@ for row in df_notification_emails.itertuples():
 
     if not workspace_id or not semantic_model_id:
         continue
-    
-    notification_emails_by_semantic_model[get_semantic_model_key(workspace_id, semantic_model_id)] = notification_emails
+
+    if semantic_model_id == "*":
+        notification_emails_by_workspace[workspace_id] = notification_emails
+    else:
+        notification_emails_by_semantic_model[get_semantic_model_key(workspace_id, semantic_model_id)] = notification_emails
 
 print(f"🔍 Trace | {len(notification_emails_by_semantic_model)} semantic models with configured notification emails")
+print(f"🔍 Trace | {len(notification_emails_by_workspace)} workspaces with wildcard configured notification emails")
 
 # METADATA ********************
 
@@ -225,15 +231,15 @@ for semantic_model in semantic_models_to_monitor:
         check_error = str(e)
         print(f"🔍 Trace | Error: {check_error}")
 
-    new_failed_refreshes = [r for r in new_refreshes if r.get("status") == "Failed"]
+    new_relevant_refreshes = [r for r in new_refreshes if r.get("status") in ("Failed", "Disabled")]
 
     refresh_check_results.append({
         "semantic_model": semantic_model,
-        "new_failed_refreshes": new_failed_refreshes,
+        "new_relevant_refreshes": new_relevant_refreshes,
         "check_error": check_error,
     })
 
-print(f"🔍 Trace | {sum(1 for r in refresh_check_results if r['new_failed_refreshes'] or r['check_error'])} semantic models with new failures or check errors")
+print(f"🔍 Trace | {sum(1 for r in refresh_check_results if r['new_relevant_refreshes'] or r['check_error'])} semantic models with new failures, disabled refreshes, or check errors")
 
 # METADATA ********************
 
@@ -265,13 +271,13 @@ nu.fs.put(
 
 # CELL ********************
 
-# build one notification per semantic model with new failed refreshes
+# build one notification per semantic model with new failed or disabled refreshes
 
 notifications = []
 
 for result in refresh_check_results:
-    failed_refreshes = result["new_failed_refreshes"]
-    if not failed_refreshes:
+    relevant_refreshes = result["new_relevant_refreshes"]
+    if not relevant_refreshes:
         continue
 
     semantic_model = result["semantic_model"]
@@ -279,11 +285,15 @@ for result in refresh_check_results:
     semantic_model_id = semantic_model["id"]
     semantic_model_key = get_semantic_model_key(workspace_id, semantic_model_id)
 
-    email = notification_emails_by_semantic_model.get(semantic_model_key) or semantic_models_refreshes_notification_email
+    email = (
+        notification_emails_by_semantic_model.get(semantic_model_key)
+        or notification_emails_by_workspace.get(workspace_id)
+        or semantic_models_refreshes_notification_email
+    )
 
     message_lines = [
-        f"🔴 | {r.get('refreshType')} refresh started {r.get('startTime')} failed"
-        for r in failed_refreshes
+        f"🔴 | {r.get('refreshType')} refresh started {r.get('startTime')} {'disabled' if r.get('status') == 'Disabled' else 'failed'}"
+        for r in relevant_refreshes
     ]
 
     notification_body = f"""
@@ -293,7 +303,7 @@ for result in refresh_check_results:
     """
 
     notifications.append({
-        "subject": f"Semantic model refresh failed: {semantic_model['name']}",
+        "subject": f"Semantic model refresh issue: {semantic_model['name']}",
         "body": notification_body,
         "emails": email,
     })
