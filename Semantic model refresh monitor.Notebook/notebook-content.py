@@ -27,8 +27,8 @@
 # This notebook monitors the refresh history of semantic models that were overtaken by service principals (see the *Overtake semantic models* notebook).
 # 
 # Under service principal ownership, the built-in scheduled refresh failure email notifications do not work, so this notebook reads the refresh history through the API instead and produces its own notifications for any failed or disabled refresh (scheduled, manual, or via API).
-# # For each semantic model listed in `semantic_models_to_overtake.json`, it keeps track of the last refresh it has already checked, so every run only looks at refreshes that happened since the previous run.
-# # Notification emails are looked up in an XLSX mapping file (workspace id, semantic model id, notification emails). A semantic model id of `*` configures the emails for every semantic model in that workspace. If a semantic model has no matching emails configured there, a fallback email from the variable library is used.
+# For each semantic model listed in `semantic_models_to_overtake.json`, it keeps track of the last refresh it has already checked, so every run only looks at refreshes that happened since the previous run.
+# Notification emails are looked up in an XLSX mapping file (workspace id, semantic model id, notification emails). A semantic model id of `*` configures the emails for every semantic model in that workspace. If a semantic model has no matching emails configured there, a fallback email from the variable library is used.
 # 
 # If checking a semantic model's refresh history itself fails (for example, a permissions issue), that is not sent to the model's delegated recipients - all such check failures are aggregated into a single notification sent to a dedicated monitoring email from the variable library.
 
@@ -121,6 +121,9 @@ semantic_models_to_overtake_file_path = "/lakehouse/default/Files/semantic_model
 try:
     with open(semantic_models_to_overtake_file_path, "r") as f:
         semantic_models_to_monitor = json.load(f)
+        semantic_models_to_monitor = [
+            s for s in semantic_models_to_monitor if s.get("isRefreshable", False)
+        ]
 except FileNotFoundError:
     print(f"🔍 Trace | {semantic_models_to_overtake_file_path} not found, nothing to monitor yet")
     semantic_models_to_monitor = []

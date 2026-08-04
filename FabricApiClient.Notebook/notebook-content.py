@@ -65,9 +65,6 @@ class FabricApiClient:
 
     def __handle_response(self, response):
         if response.status_code >= 400:
-            print(response.headers.get("WWW-Authenticate"))
-            print(self.__access_token)
-
             raise Exception(f"HTTP {response.status_code} on {response.request.method} {response.request.url}: {response.text}")
 
         content_type = response.headers.get("Content-Type", "")
