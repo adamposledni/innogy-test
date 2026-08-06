@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/userDataFunction/definition/1.1.0/schema.json",
+  "runtime": "PYTHON",
+  "connectedDataSources": [
+    {
+      "alias": "Variables",
+      "artifactId": "89476e22-ac0a-b7ec-4bc8-86c82f1590dd",
+      "artifactType": "Variables",
+      "workspaceId": "00000000-0000-0000-0000-000000000000"
+    }
+  ],
+  "functions": [
+    {
+      "name": "trigger_refreshes",
+      "description": "",
+      "isPublicEndpointEnabled": true
+    }
+  ],
+  "libraries": {
+    "public": [
+      {
+        "name": "azure-keyvault-secrets",
+        "type": "PYPI",
+        "version": "4.11.0"
+      },
+      {
+        "name": "fabric-user-data-functions",
+        "type": "PYPI",
+        "version": "1.0"
+      },
+      {
+        "name": "requests",
+        "type": "PYPI",
+        "version": "2.34.2"
+      }
+    ],
+    "private": []
+  }
+}

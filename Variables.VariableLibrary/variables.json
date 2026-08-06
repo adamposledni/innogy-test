@@ -48,6 +48,18 @@
       "note": "",
       "type": "Guid",
       "value": "37982985-f05e-453e-9ea7-fd8fd1b8a7ee"
+    },
+    {
+      "name": "refresh_client_id",
+      "note": "",
+      "type": "Guid",
+      "value": "144bb717-bd52-4b47-a267-687e993a5623"
+    },
+    {
+      "name": "refresh_client_secret_key",
+      "note": "",
+      "type": "String",
+      "value": "Fabric6"
     }
   ]
 }
